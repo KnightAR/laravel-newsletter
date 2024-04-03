@@ -83,11 +83,28 @@ class MailChimpDriver implements Driver
         return $this->mailChimp->get("lists/{$list->getId()}/members", $parameters);
     }
 
-    public function getMember(string $email, string $listName = '')
+    public function updateMember(string $email, array $mergeFields = [], string $listName = '', array $options = [])
     {
         $list = $this->lists->findByName($listName);
 
-        return $this->mailChimp->get("lists/{$list->getId()}/members/{$this->getSubscriberHash($email)}");
+        if (count($mergeFields)) {
+            $options['merge_fields'] = $mergeFields;
+        }
+
+        $response = $this->mailChimp->patch("lists/{$list->getId()}/members/{$this->mailChimp->subscriberHash($email)}", $options);
+
+        if (! $this->mailChimp->success()) {
+            return false;
+        }
+
+        return $response;
+    }
+
+    public function getMember(string $email, string $listName = '', array $parameters = [])
+    {
+        $list = $this->lists->findByName($listName);
+
+        return $this->mailChimp->get("lists/{$list->getId()}/members/{$this->getSubscriberHash($email)}", $parameters);
     }
 
     public function unsubscribe(string $email, string $listName = '')
@@ -112,6 +129,48 @@ class MailChimpDriver implements Driver
         $response = $this->mailChimp->delete("lists/{$list->getId()}/members/{$this->getSubscriberHash($email)}");
 
         return $response;
+    }
+
+    public function deletePermanently(string $email, string $listName = '')
+    {
+        $list = $this->lists->findByName($listName);
+
+        $response = $this->mailChimp->post("lists/{$list->getId()}/members/{$this->getSubscriberHash($email)}/actions/delete-permanent");
+
+        return $response;
+    }
+
+    public function getTags(string $email, string $listName = '')
+    {
+        $list = $this->lists->findByName($listName);
+
+        return $this->mailChimp->get("lists/{$list->getId()}/members/{$this->getSubscriberHash($email)}/tags");
+    }
+
+    public function addTags(array $tags, string $email, string $listName = '')
+    {
+        $list = $this->lists->findByName($listName);
+
+        $payload = collect($tags)->map(function ($tag) {
+            return ['name' => $tag, 'status' => 'active'];
+        })->toArray();
+
+        return $this->mailChimp->post("lists/{$list->getId()}/members/{$this->getSubscriberHash($email)}/tags", [
+            'tags' => $payload,
+        ]);
+    }
+
+    public function removeTags(array $tags, string $email, string $listName = '')
+    {
+        $list = $this->lists->findByName($listName);
+
+        $payload = collect($tags)->map(function ($tag) {
+            return ['name' => $tag, 'status' => 'inactive'];
+        })->toArray();
+
+        return $this->mailChimp->post("lists/{$list->getId()}/members/{$this->getSubscriberHash($email)}/tags", [
+            'tags' => $payload,
+        ]);
     }
 
     public function hasMember(string $email, string $listName = ''): bool

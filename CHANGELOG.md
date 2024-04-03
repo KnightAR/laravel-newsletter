@@ -2,6 +2,25 @@
 
 All notable changes to `laravel-newsletter` will be documented in this file.
 
+## 5.1.1 - 2023-02-09
+
+**Full Changelog**: https://github.com/spatie/laravel-newsletter/compare/5.1.0...5.1.1
+
+## 5.1.0 - 2023-01-14
+
+### What's Changed
+
+- Laravel 10.x Compatibility by @laravel-shift in https://github.com/spatie/laravel-newsletter/pull/292
+
+**Full Changelog**: https://github.com/spatie/laravel-newsletter/compare/5.0.0...5.1.0
+
+## 5.0.0 - 2022-11-10
+
+- the package is now driver based
+- added driver from [Mailcoach](https://mailcoach.app) and [MailChimp](https://mailchimp.com)
+- simplified code
+- refactored tests to Pest
+
 ## 4.11.0 - 2022-01-14
 
 - allow Laravel 9

@@ -56,23 +56,6 @@ class Newsletter
         return $response;
     }
 
-    public function updateMember(string $email, array $mergeFields = [], string $listName = '', array $options = [])
-    {
-        $list = $this->lists->findByName($listName);
-
-        if (count($mergeFields)) {
-            $options['merge_fields'] = $mergeFields;
-        }
-
-        $response = $this->mailChimp->patch("lists/{$list->getId()}/members/{$this->mailChimp->subscriberHash($email)}", $options);
-
-        if (! $this->mailChimp->success()) {
-            return false;
-        }
-
-        return $response;
-    }
-
     public function getMembers(string $listName = '', array $parameters = [])
     {
         $list = $this->lists->findByName($listName);
@@ -80,11 +63,11 @@ class Newsletter
         return $this->mailChimp->get("lists/{$list->getId()}/members", $parameters);
     }
 
-    public function getMember(string $email, string $listName = '', array $parameters = [])
+    public function getMember(string $email, string $listName = '')
     {
         $list = $this->lists->findByName($listName);
 
-        return $this->mailChimp->get("lists/{$list->getId()}/members/{$this->getSubscriberHash($email)}", $parameters);
+        return $this->mailChimp->get("lists/{$list->getId()}/members/{$this->getSubscriberHash($email)}");
     }
 
     public function getMemberActivity(string $email, string $listName = '')
